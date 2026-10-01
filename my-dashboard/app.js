@@ -18,8 +18,9 @@ const loadData = async () => {
     $('#sub-title').text(data.title + ' · 数据来源：校园图书馆模拟数据');
     $('#status').hide();
 
-    renderCards(data);//待加功能
-
+    renderCards(data);
+    renderBarChart(data);
+    // renderLineChart(data);  // 第三步加
   } catch (error) {
     $('#status').text('加载失败：' + error.message).show();
   }
@@ -40,6 +41,40 @@ const renderCards = (data) => {
         </div>
       </div>
     `);
+  });
+};
+
+let barChart = null;
+const renderBarChart = (data) => {
+  if (barChart === null) {
+    barChart = echarts.init(document.querySelector('#bar-chart'));
+  }
+
+  const categories = data.series.map(s => s.category);
+
+  const totals = data.series.map(s =>
+    s.counts.reduce((sum, n) => sum + n, 0)
+  );
+
+  barChart.setOption({
+    title: {
+      text: '各类别累计借阅量',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      data: categories
+    },
+    yAxis: {
+      name: '册'
+    },
+    series: [{
+      name: '累计借阅量',
+      type: 'bar',
+      data: totals
+    }]
   });
 };
 
