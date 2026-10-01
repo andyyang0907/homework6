@@ -20,7 +20,7 @@ const loadData = async () => {
 
     renderCards(data);
     renderBarChart(data);
-    // renderLineChart(data);  // 第三步加
+    renderLineChart(data);
   } catch (error) {
     $('#status').text('加载失败：' + error.message).show();
   }
@@ -75,6 +75,43 @@ const renderBarChart = (data) => {
       type: 'bar',
       data: totals
     }]
+  });
+};
+
+let lineChart = null;
+const renderLineChart = (data) => {
+  if (lineChart !== null) {
+    lineChart.destroy();
+  }
+
+  const monthlyTotals = data.months.map((month, index) => {
+    return data.series.reduce((sum, s) => {
+      return sum + s.counts[index];
+    }, 0);
+  });
+
+  const ctx = document.querySelector('#line-chart');
+
+  lineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.months,
+      datasets: [{
+        label: '每月总借阅量',
+        data: monthlyTotals,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: '校园图书馆每月总借阅量（单位：册）'
+        }
+      }
+    }
   });
 };
 
